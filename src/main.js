@@ -12,3 +12,5 @@ k.loadSprite("spritesheet", "./spritesheet.png", {        // okay so cuz of vite
         "walk-up": {from: 1026, to: 1029, loop: true, speed: 8}
     }
 })  
+
+k.loadSprite
