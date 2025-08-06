@@ -1,5 +1,8 @@
 import { scaleFactor } from "./constants";
+import { dialogueData } from "./constants";
 import { k } from "./kaboomCtx";
+import { displayDialogue } from "./utils";
+import { setCamScale } from "./utils";
 
 k.loadSprite("spritesheet", "./spritesheet.png", {        // okay so cuz of vite we don't have to pass it as /public/spritesheet.png cuz in vite it assumes all files in same directory~
     sliceX: 39,
@@ -23,7 +26,7 @@ k.scene("main", async () => {
     const mapData = await (await fetch("./map.json")).json()
     const layers = mapData.layers;
 
-    const map = k.make([                    // making a game object
+    const map = k.add([                    // making a game object
         k.sprite("map"),                    // already loaded "map" from the loadSprite fxn so we can use it here~
         k.pos(0),
         k.scale(scaleFactor)
@@ -46,27 +49,119 @@ k.scene("main", async () => {
         "player",
     ]);
 
-    for(const layer of layers) {
-        if(layer.name === "boundaries") {
-            for(const boundary of layer.objects) {
-                map.add([                       // making a child object from an already existing object~
-                    k.area({
-                        shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
-                    }),
-                    k.body({ isStatic: true}),
-                    k.pos(boundary.x, boundary.y),
-                    boundary.name,
-                ]);
-            }
+    for (const layer of layers) {
+        if (layer.name === "boundaries") {
+        for (const boundary of layer.objects) {
+            map.add([
+            k.area({
+                shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
+            }),
+            k.body({ isStatic: true }),
+            k.pos(boundary.x, boundary.y),
+            boundary.name,
+            ]);
 
-            if(boundary.name) {
-                player.onCollide(boundary.name, () => {
-                    player.isInDialogue = true;
-                    // TODO
-                });
+            if (boundary.name) {
+            player.onCollide(boundary.name, () => {
+                player.isInDialogue = true;
+                displayDialogue(
+                dialogueData[boundary.name],
+                () => (player.isInDialogue = false)
+                );
+            });
             }
         }
+
+        continue;
+        }
+
+        if (layer.name === "spawnpoints") {
+        for (const entity of layer.objects) {
+            if (entity.name === "player") {
+            player.pos = k.vec2(
+                (map.pos.x + entity.x) * scaleFactor,
+                (map.pos.y + entity.y) * scaleFactor
+            );
+            k.add(player);
+            continue;
+            }
+        }
+        }
     }
+
+    setCamScale(k);
+
+    k.onResize(() => {
+        setCamScale(k);
+    })
+
+    k.onUpdate(() => {
+        k.camPos(player.pos.x, player.pos.y + 100);
+    });
+
+    // logic for moving the player~
+    k.onMouseDown((mouseBtn) => {
+        if(mouseBtn !== "left" || player.isInDialogue) return;
+
+        const worldMousePos = k.toWorld(k.mousePos());
+        player.moveTo(worldMousePos, player.speed);
+
+        const mouseAngle = player.pos.angle(worldMousePos);
+
+        const lowerBound = 50;
+        const upperBound = 125;
+
+        if(
+            mouseAngle > lowerBound &&
+            mouseAngle < upperBound &&
+            player.curAnim() !== "walk-up"
+        ) {
+            player.play("walk-up");
+            player.direction = "up";
+            return;
+        }
+
+        if(
+            mouseAngle < -lowerBound &&
+            mouseAngle > -upperBound &&
+            player.curAnim() !== "walk-down"
+        ) {
+            player.play("walk-down");
+            player.direction = "down";
+            return;
+        }
+
+        if(Math.abs(mouseAngle) > upperBound) {
+            player.flipX = false;
+            if(player.curAnim() !== "walk-side") player.play("walk-side");
+            player.direction = "right";
+            return;
+        }
+
+        if(Math.abs(mouseAngle) < lowerBound) {
+            player.flipX = true;
+            if(player.curAnim() !== "walk-side") player.play("walk-side");
+            player.direction = "left";
+            return;
+        }
+    });
+
+    k.onMouseRelease(() => 
+        {
+            if (player.direction === "down") {
+            player.play("idle-down");
+            return;
+            }
+            if (player.direction === "up") {
+            player.play("idle-up");
+            return;
+            }
+
+            player.play("idle-side");
+        }
+    );
+
+
 });
 
 k.go("main");
