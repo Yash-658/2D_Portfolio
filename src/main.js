@@ -1,39 +1,38 @@
-import { scaleFactor } from "./constants";
-import { dialogueData } from "./constants";
-import { k } from "./kaboomCtx";
-import { displayDialogue } from "./utils";
-import { setCamScale } from "./utils";
+import { scaleFactor } from "./constants.js";
+import { dialogueData } from "./constants.js";
+import { k } from "./kaboomCtx.js";
+import { displayDialogue } from "./utils.js";
+import { setCamScale } from "./utils.js";
 
-k.loadSprite("spritesheet", "./spritesheet.png", {        // okay so cuz of vite we don't have to pass it as /public/spritesheet.png cuz in vite it assumes all files in same directory~
+k.loadSprite("spritesheet", import.meta.env.BASE_URL + "spritesheet.png", {
     sliceX: 39,
     sliceY: 31,
     anims: {
         "idle-down": 948,
-        "walk-down": {from: 948, to: 951, loop: true, speed: 8},
+        "walk-down": { from: 948, to: 951, loop: true, speed: 8 },
         "idle-side": 987,
-        "walk-side": {from: 987, to: 990, loop: true, speed: 8},
+        "walk-side": { from: 987, to: 990, loop: true, speed: 8 },
         "idle-up": 1026,
-        "walk-up": {from: 1026, to: 1029, loop: true, speed: 8}
+        "walk-up": { from: 1026, to: 1029, loop: true, speed: 8 }
     }
-})  
+});
 
-k.loadSprite("map", "./map.png");
+k.loadSprite("map", import.meta.env.BASE_URL + "map.png");
 
 k.setBackground(k.Color.fromHex("#311047"));
 
 k.scene("main", async () => {
-    // logic for the scene
-    const mapData = await (await fetch("./map.json")).json()
+    const mapData = await (await fetch(import.meta.env.BASE_URL + "map.json")).json();
     const layers = mapData.layers;
 
-    const map = k.add([                    // making a game object
-        k.sprite("map"),                    // already loaded "map" from the loadSprite fxn so we can use it here~
+    const map = k.add([
+        k.sprite("map"),
         k.pos(0),
         k.scale(scaleFactor)
-    ]);     
-    
+    ]);
+
     const player = k.make([
-        k.sprite("spritesheet", {anim: "idle-down"}),   // default anim: idle-down
+        k.sprite("spritesheet", { anim: "idle-down" }),
         k.area({
             shape: new k.Rect(k.vec2(0, 3), 10, 10)
         }),
@@ -41,7 +40,7 @@ k.scene("main", async () => {
         k.anchor("center"),
         k.pos(),
         k.scale(scaleFactor),
-        {                                       // now defining some object properties
+        {
             speed: 250,
             direction: "down",
             isInDialogue: false,
@@ -51,41 +50,41 @@ k.scene("main", async () => {
 
     for (const layer of layers) {
         if (layer.name === "boundaries") {
-        for (const boundary of layer.objects) {
-            map.add([
-            k.area({
-                shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
-            }),
-            k.body({ isStatic: true }),
-            k.pos(boundary.x, boundary.y),
-            boundary.name,
-            ]);
+            for (const boundary of layer.objects) {
+                map.add([
+                    k.area({
+                        shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
+                    }),
+                    k.body({ isStatic: true }),
+                    k.pos(boundary.x, boundary.y),
+                    boundary.name,
+                ]);
 
-            if (boundary.name) {
-            player.onCollide(boundary.name, () => {
-                player.isInDialogue = true;
-                displayDialogue(
-                dialogueData[boundary.name],
-                () => (player.isInDialogue = false)
-                );
-            });
+                if (boundary.name) {
+                    player.onCollide(boundary.name, () => {
+                        player.isInDialogue = true;
+                        displayDialogue(
+                            dialogueData[boundary.name],
+                            () => (player.isInDialogue = false)
+                        );
+                    });
+                }
             }
-        }
 
-        continue;
+            continue;
         }
 
         if (layer.name === "spawnpoints") {
-        for (const entity of layer.objects) {
-            if (entity.name === "player") {
-            player.pos = k.vec2(
-                (map.pos.x + entity.x) * scaleFactor,
-                (map.pos.y + entity.y) * scaleFactor
-            );
-            k.add(player);
-            continue;
+            for (const entity of layer.objects) {
+                if (entity.name === "player") {
+                    player.pos = k.vec2(
+                        (map.pos.x + entity.x) * scaleFactor,
+                        (map.pos.y + entity.y) * scaleFactor
+                    );
+                    k.add(player);
+                    continue;
+                }
             }
-        }
         }
     }
 
@@ -93,15 +92,14 @@ k.scene("main", async () => {
 
     k.onResize(() => {
         setCamScale(k);
-    })
+    });
 
     k.onUpdate(() => {
         k.camPos(player.pos.x, player.pos.y + 100);
     });
 
-    // logic for moving the player~
     k.onMouseDown((mouseBtn) => {
-        if(mouseBtn !== "left" || player.isInDialogue) return;
+        if (mouseBtn !== "left" || player.isInDialogue) return;
 
         const worldMousePos = k.toWorld(k.mousePos());
         player.moveTo(worldMousePos, player.speed);
@@ -111,7 +109,7 @@ k.scene("main", async () => {
         const lowerBound = 50;
         const upperBound = 125;
 
-        if(
+        if (
             mouseAngle > lowerBound &&
             mouseAngle < upperBound &&
             player.curAnim() !== "walk-up"
@@ -121,7 +119,7 @@ k.scene("main", async () => {
             return;
         }
 
-        if(
+        if (
             mouseAngle < -lowerBound &&
             mouseAngle > -upperBound &&
             player.curAnim() !== "walk-down"
@@ -131,37 +129,33 @@ k.scene("main", async () => {
             return;
         }
 
-        if(Math.abs(mouseAngle) > upperBound) {
+        if (Math.abs(mouseAngle) > upperBound) {
             player.flipX = false;
-            if(player.curAnim() !== "walk-side") player.play("walk-side");
+            if (player.curAnim() !== "walk-side") player.play("walk-side");
             player.direction = "right";
             return;
         }
 
-        if(Math.abs(mouseAngle) < lowerBound) {
+        if (Math.abs(mouseAngle) < lowerBound) {
             player.flipX = true;
-            if(player.curAnim() !== "walk-side") player.play("walk-side");
+            if (player.curAnim() !== "walk-side") player.play("walk-side");
             player.direction = "left";
             return;
         }
     });
 
-    k.onMouseRelease(() => 
-        {
-            if (player.direction === "down") {
+    k.onMouseRelease(() => {
+        if (player.direction === "down") {
             player.play("idle-down");
             return;
-            }
-            if (player.direction === "up") {
+        }
+        if (player.direction === "up") {
             player.play("idle-up");
             return;
-            }
-
-            player.play("idle-side");
         }
-    );
 
-
+        player.play("idle-side");
+    });
 });
 
 k.go("main");
