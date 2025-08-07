@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="./vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
   </head>
@@ -10,7 +10,7 @@
     <style>
       @font-face {
         font-family: monogram;
-        src: url(monogram.ttf);
+        src: url(./monogram.ttf); /* Made relative */
       }
 
       body {
@@ -42,7 +42,6 @@
         align-items: flex-start;
         word-spacing: 0.2rem;
         filter: drop-shadow(0 0 0.75rem rgb(112, 112, 112));
-        /* overflow: auto; */
       }
 
       .ui-text {
@@ -73,6 +72,7 @@
         user-select: none;
       }
     </style>
+
     <div id="app">
       <div>
         <p class="note">Tap/Click around to move</p>
@@ -88,6 +88,10 @@
       </div>
       <canvas id="game"></canvas>
     </div>
-    <script type="module" src="src/main.js"></script>
+
+    <!-- ✅ Use relative path for script -->
+    <script type="module" src="./src/main.js"></script>
   </body>
+</html>
+
 </html>
