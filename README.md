@@ -2,7 +2,8 @@
 
 Welcome to my interactive portfolio — built entirely using **Kaboom.js**, a 2D game programming library for JavaScript! Instead of a traditional portfolio, I decided to turn things up a notch and build a playable experience that shows off my personality, creativity, and web dev skills.
 
-This is a fun side project I really enjoyed making — it’s playful, unique, and reflects how much I love combining creativity with code.
+This is a fun side project I really enjoyed making — it’s playful, unique, and reflects how much I love combining creativity with code. <br>
+👉 [Check out the live 2D Portfolio site](https://yash-658.github.io/2D_Portfolio/)
 
 ---
 
