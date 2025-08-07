@@ -10,7 +10,7 @@ export const dialogueData = {
     "sofa-table": `That's my sofa. I like to relax here and watch videos on how to get rich!.`,
     tv: `That's my TV. Here I binge watch shows day and night, Some of my favs are:
      Three Body Problems, Stranger Things, Wednesday 🤺`,
-    bed: `This where I sleep. Great ideas comes when I'm lying on my bed... <br>but mostly ideas about how I could have implemented a certain DSA question Differently `,
+    bed: `This is where I sleep. Great ideas comes when I'm lying on my bed... <br>but mostly ideas about how I could have implemented a certain DSA question Differently `,
     resume: `This is my desk and on it is my resume !!!. <a href="https://github.com/Yash-658/Yash-658/blob/ffe85399cf3aa274d35a9b4e43b9338608021f14/REAL%20RESUME.pdf" target="_blank">Check it out?</a>  
     <br> Contact me at yashraghuwanshi658@gmail.com if you have any interesting job opportunities!`,
     projects: `Info about this portfolio : It's made with the Kaboom.js library which is a library for making games in JavaScript.
